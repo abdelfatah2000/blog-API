@@ -3,14 +3,21 @@ import {
   HttpException,
   HttpStatus,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { SignupDto, SigninDto } from './dto';
+import { SignupDto, SigninDto, UpdateDto } from './dto';
 import * as argon from 'argon2';
 import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload, Token } from './types';
 import { ConfigService } from '@nestjs/config';
+
+const select = {
+  name: true,
+  email: true,
+  phone: true,
+};
 
 @Injectable()
 export class AuthService {
@@ -20,15 +27,16 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signup(dto: SignupDto): Promise<User> {
+  async signup(dto: SignupDto) {
     const hash = await this.hashData(dto.password);
     dto.password = hash;
     try {
       const user = await this.prisma.user.create({
         data: dto,
+        select,
       });
       delete user['password'];
-      return user;
+      return { user };
     } catch (error) {
       throw new HttpException(
         `Invalid ${error.meta.target[0]}`,
@@ -81,6 +89,27 @@ export class AuthService {
     return 'User is logged out';
   }
 
+  async update(dto: UpdateDto, id: number) {
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { ...dto },
+      select,
+    });
+    return { user };
+  }
+
+  async delete(id: number) {
+    await this.prisma.user.delete({ where: { id } });
+    return 'User Deleted';
+  }
+
+  async userData(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select,
+    });
+    return { user };
+  }
   private async generateToken(email: string, userId: number): Promise<Token> {
     const payload: JwtPayload = {
       sub: userId,

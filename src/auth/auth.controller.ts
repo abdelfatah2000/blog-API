@@ -4,17 +4,18 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Req,
   UseGuards,
+  Put,
+  Get,
+  Param,
+  Delete,
 } from '@nestjs/common';
-import { Token } from './types';
-import { AccessTokenGuard, RefreshTokenGuard } from './guards';
+import { RefreshTokenGuard } from './guards';
 import { AuthService } from './auth.service';
-import { SigninDto, SignupDto } from './dto';
+import { SigninDto, SignupDto, UpdateDto } from './dto';
 import { GetCurrentUser, Public } from '../common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import { User } from '@prisma/client';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -23,6 +24,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private config: ConfigService,
   ) {}
+
   @Public()
   @ApiOperation({ summary: 'User Register' })
   @Post('signup')
@@ -40,7 +42,6 @@ export class AuthController {
   }
 
   @Post('logout')
-  @UseGuards(AccessTokenGuard)
   @ApiOperation({ summary: 'User Logout' })
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrentUser('userId') userId: number) {
@@ -54,5 +55,26 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   refresh(@GetCurrentUser() user) {
     return this.authService.refreshToken(user.sub, user.refreshToken);
+  }
+
+  @Put('update')
+  @ApiOperation({ summary: 'Update User Data' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  update(@GetCurrentUser('userId') userId: number, @Body() dto: UpdateDto) {
+    return this.authService.update(dto, userId);
+  }
+
+  @Get('getUser/:id')
+  @ApiOperation({ summary: 'Get User Data' })
+  @HttpCode(HttpStatus.OK)
+  me(@Param('id') userId: number) {
+    return this.authService.userData(userId);
+  }
+
+  @Delete('delete/:id')
+  @ApiOperation({ summary: 'Delete User' })
+  @HttpCode(HttpStatus.OK)
+  delete(@Param('id') id: number) {
+    return this.authService.delete(id);
   }
 }
