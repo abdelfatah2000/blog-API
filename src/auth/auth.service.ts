@@ -53,13 +53,13 @@ export class AuthService {
         },
       });
       if (!user)
-        throw new HttpException('Wrong Credentials', HttpStatus.BAD_GATEWAY);
+        throw new HttpException('Wrong Credentials', HttpStatus.BAD_REQUEST);
       await this.verifyData(user.password, dto.password);
       const tokens = await this.generateToken(dto.email, user.id);
       await this.updateHashedRefreshToken(user.id, tokens.refresh_token);
       return tokens;
     } catch (error) {
-      throw new HttpException('Error', HttpStatus.BAD_GATEWAY);
+      throw new HttpException('Error', HttpStatus.BAD_REQUEST);
     }
   }
 

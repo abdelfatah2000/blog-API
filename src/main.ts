@@ -23,7 +23,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
 
-  const logger = new Logger('bootstrap');
+  const logger = new Logger('StartingApp');
   await app.listen(configService.get('PORT'));
   logger.log(
     `Example app listening at http://localhost:${configService.get(
