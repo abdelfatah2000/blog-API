@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateDto, UpdateDto } from './dto';
+import { CreateArticleDto, EditArticleDto } from './dto';
 
 const articleMap = (count, articles) => {
   const newArticle = articles.map((item) => {
@@ -21,7 +21,7 @@ const select = {
 export class ArticleService {
   constructor(private prisma: PrismaService) {}
 
-  async create(authorId: number, dto: CreateDto): Promise<any> {
+  async create(authorId: number, dto: CreateArticleDto): Promise<any> {
     const data = {
       ...dto,
       authorId,
@@ -50,7 +50,7 @@ export class ArticleService {
     return newArticles;
   }
 
-  async update(articleId: number, data: UpdateDto): Promise<any> {
+  async update(articleId: number, data: EditArticleDto): Promise<any> {
     const article = await this.prisma.article.update({
       where: { id: articleId },
       data,

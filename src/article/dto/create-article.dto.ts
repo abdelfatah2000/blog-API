@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional, MinLength } from 'class-validator';
 
-export class CreateDto {
+export class CreateArticleDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(3)

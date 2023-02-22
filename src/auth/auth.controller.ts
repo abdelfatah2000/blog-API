@@ -16,6 +16,7 @@ import { SigninDto, SignupDto, UpdateDto } from './dto';
 import { GetCurrentUser, Public } from '../common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { User } from '@prisma/client';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -67,7 +68,7 @@ export class AuthController {
   @Get('getUser/:id')
   @ApiOperation({ summary: 'Get User Data' })
   @HttpCode(HttpStatus.OK)
-  me(@Param('id') userId: number) {
+  getUser(@Param('id') userId: number) {
     return this.authService.userData(userId);
   }
 
@@ -76,5 +77,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   delete(@Param('id') id: number) {
     return this.authService.delete(id);
+  }
+  @Get('me')
+  @ApiOperation({ summary: 'Get My Data' })
+  @HttpCode(HttpStatus.OK)
+  me(@GetCurrentUser() user: User) {
+    return user;
   }
 }

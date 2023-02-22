@@ -8,9 +8,10 @@ import {
   Get,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
-import { CreateDto, UpdateDto } from './dto';
+import { CreateArticleDto, EditArticleDto } from './dto';
 import { GetCurrentUser } from '../common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { IArticle, IArticles } from './types';
@@ -24,7 +25,7 @@ export class ArticleController {
   @ApiOperation({ summary: 'Create Add Article' })
   @HttpCode(HttpStatus.ACCEPTED)
   createArticle(
-    @Body() dto: CreateDto,
+    @Body() dto: CreateArticleDto,
     @GetCurrentUser('userId') userId: number,
   ): Promise<IArticle> {
     return this.articleService.create(userId, dto);
@@ -40,28 +41,33 @@ export class ArticleController {
   @Get('authorArticles/:id')
   @ApiOperation({ summary: 'Get All Author Articles' })
   @HttpCode(HttpStatus.OK)
-  getAuthorArticles(@Param('id') authorId: number): Promise<IArticles> {
+  getAuthorArticles(
+    @Param('id', ParseIntPipe) authorId: number,
+  ): Promise<IArticles> {
     return this.articleService.findAuthorArticles(authorId);
   }
 
   @Put('edit/:id')
   @ApiOperation({ summary: 'Edit Article' })
   @HttpCode(HttpStatus.ACCEPTED)
-  update(@Param('id') id: number, @Body() dto: UpdateDto): Promise<IArticle> {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: EditArticleDto,
+  ): Promise<IArticle> {
     return this.articleService.update(id, dto);
   }
 
   @Get('get/:id')
   @ApiOperation({ summary: 'Get Article' })
   @HttpCode(HttpStatus.OK)
-  getArticle(@Param('id') id: number): Promise<IArticle> {
+  getArticle(@Param('id', ParseIntPipe) id: number): Promise<IArticle> {
     return this.articleService.findOne(id);
   }
 
   @Delete('delete/:id')
   @ApiOperation({ summary: 'Delete Article' })
   @HttpCode(HttpStatus.ACCEPTED)
-  delete(@Param('id') id: number) {
+  delete(@Param('id', ParseIntPipe) id: number) {
     return this.articleService.delete(id);
   }
 }
